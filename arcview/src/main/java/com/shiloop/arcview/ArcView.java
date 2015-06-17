@@ -343,7 +343,7 @@ public class ArcView extends View {
      * @param startAngle angle
      */
     public void setStartAngle(float startAngle) {
-        this.mStartAngle = (float) (startAngle - 360 * Math.floor(startAngle / 360));
+        this.mStartAngle = restrict0to360(startAngle);
     }
 
     public void setPressedColor(int color) {
@@ -427,7 +427,7 @@ public class ArcView extends View {
                     mIsInside = false;
                     mOuterPaint.setColor(getArcColor());
                     invalidate();
-                    return true;
+                    return false;
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -436,12 +436,12 @@ public class ArcView extends View {
                     mIsInside = false;
                     mOuterPaint.setColor(getArcColor());
                     invalidate();
-                    return true;
+                    return false;
                 }
                 break;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -458,14 +458,23 @@ public class ArcView extends View {
         if (sr < 0.00000001D) {
             return 0;
         }
-        return (float) (Math.asin(ay / sr) * 180 / Math.PI);
+
+        float angle = (float) (Math.acos(ax / sr) * 180 / Math.PI);
+        return ay < 0 ? 360 - angle : angle;
+    }
+
+    private static float restrict0to360(float angle) {
+        return (float) (angle - 360 * Math.floor(angle / 360));
     }
 
     private boolean isInside(float x, float y) {
         float radius = getRadius(x, y);
-        float angle = getAngle(x, y);
-        return radius >= getInnerRadius() && radius <= getOuterRadius() && (getSweepAngle() == 360 ||
-                angle >= getStartAngle() && angle <= getSweepAngle() + getStartAngle());
+        if (radius >= getInnerRadius() && radius <= getOuterRadius()) {
+            if (getSweepAngle() == 360) return true;
+            float angle = getAngle(x, y);
+            return angle >= getStartAngle() && angle <= getSweepAngle() + getStartAngle();
+        }
+        return false;
     }
 
     private float getRadius(float x, float y) {
