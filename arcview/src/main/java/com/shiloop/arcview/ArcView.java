@@ -472,6 +472,10 @@ public class ArcView extends View {
         if (radius >= getInnerRadius() && radius <= getOuterRadius()) {
             if (getSweepAngle() == 360) return true;
             float angle = getAngle(x, y);
+            if (getStartAngle() + getSweepAngle() > 360) {
+                return angle >= getStartAngle() && angle <= getSweepAngle() + getStartAngle() ||
+                        angle + 360 >= getStartAngle() && angle + 360 <= getSweepAngle() + getStartAngle();
+            }
             return angle >= getStartAngle() && angle <= getSweepAngle() + getStartAngle();
         }
         return false;
