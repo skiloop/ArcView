@@ -1,0 +1,16 @@
+<resources>
+    <declare-styleable name="ArcView">
+        <attr name="arcText" format="string" />
+        <attr name="arcTextSize" format="dimension" />
+        <attr name="arcTextColor" format="color" />
+        <attr name="arcMaxRadius" format="dimension" />
+        <attr name="arcStrokeWidth" format="dimension" />
+        <attr name="arcSweepAngle" format="float" />
+        <attr name="arcStartAngle" format="float" />
+        <attr name="arcColor" format="color" />
+        <attr name="arcInnerColor" format="color" />
+        <attr name="arcInnerRadiusRatio" format="float" />
+        <attr name="arcStrokeColor" format="color" />
+        <attr name="arcPressedColor" format="color" />
+    </declare-styleable>
+</resources>

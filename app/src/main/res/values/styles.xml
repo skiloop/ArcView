@@ -1,0 +1,22 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="arcViewStyle">
+        <item name="arcTextColor">@android:color/white</item>
+        <item name="arcTextSize">18sp</item>
+        <item name="arcStrokeWidth">3sp</item>
+        <item name="arcMaxRadius">100sp</item>
+        <item name="arcText">ArcView</item>
+        <item name="arcSweepAngle">90</item>
+        <item name="arcStartAngle">0</item>
+        <item name="arcColor">#09A127</item>
+        <item name="arcInnerColor">#a99a5a</item>
+        <item name="arcInnerRadiusRatio">0.5</item>
+        <item name="arcStrokeColor">#C1C7C2</item>
+        <item name="arcPressedColor">#09E127</item>
+    </style>
+</resources>
