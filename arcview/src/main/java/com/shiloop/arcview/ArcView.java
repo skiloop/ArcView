@@ -86,9 +86,9 @@ public class ArcView extends View {
         mTextPaint.setTextAlign(Paint.Align.LEFT);
         mTextPaint.setAntiAlias(true);
 
-        setText(a.getString(R.styleable.ArcView_arcText));
+        mArcText = a.getString(R.styleable.ArcView_arcText);
         setTextColor(a.getColor(R.styleable.ArcView_arcTextColor, Color.DKGRAY));
-        setTextSize(a.getDimension(R.styleable.ArcView_arcTextSize, 24));
+        mTextPaint.setTextSize(a.getDimension(R.styleable.ArcView_arcTextSize, 24));
         setArcColor(a.getColor(R.styleable.ArcView_arcColor, Color.WHITE));
         setPressedColor(a.getColor(R.styleable.ArcView_arcPressedColor, Color.LTGRAY));
         setInnerColor(a.getColor(R.styleable.ArcView_arcInnerColor, Color.LTGRAY));
@@ -148,6 +148,8 @@ public class ArcView extends View {
 
         Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
         mTextHeight = fontMetrics.bottom;
+        validateTextPath();
+        validateTextArc();
     }
 
     protected void onMeasure(int width, int height) {
@@ -167,6 +169,10 @@ public class ArcView extends View {
     private void changeLayout(float center_x, float center_y, int contentWidth, int contentHeight) {
         Log.d(TAG, "changeLayout");
         setOuterRadius(Math.min(contentHeight, contentWidth) / 2);
+
+        mCenterY = center_y;
+        mCenterX = center_x;
+
         if (getOuterRadius() > getMaxRadius()) {
             setOuterRadius(getMaxRadius());
         }
@@ -190,21 +196,8 @@ public class ArcView extends View {
         bottom = center_y + getInnerRadius();
         mInnerArc.set(left, top, right, bottom);
 
-        setTextRadius((getOuterRadius() + getInnerRadius()) / 2);
-        left = center_x - getTextRadius();
-        right = center_x + getTextRadius();
-        top = center_y - getTextRadius();
-        bottom = center_y + getTextRadius();
-        mTextArc.set(left, top, right, bottom);
-
-        mTextPath.reset();
-        if (getSweepAngle() >= 360) {
-            float textAngle = (float) (mTextWidth * 90 / Math.PI / getTextRadius());
-            mTextPath.addArc(mTextArc, getStartAngle() + 180 - textAngle, textAngle * 2);
-        } else {
-            mTextPath.addArc(mTextArc, (float) (getStartAngle() + getSweepAngle() / 2 -
-                    mTextWidth * 90 / Math.PI / getTextRadius()), getSweepAngle());
-        }
+        validateTextArc();
+        validateTextPath();
         float cos1 = (float) (Math.cos(getStartAngle() * Math.PI / 180));
         float cos2 = (float) (Math.cos((getStartAngle() + getSweepAngle()) * Math.PI / 180));
         float sin1 = (float) (Math.sin(getStartAngle() * Math.PI / 180));
@@ -223,9 +216,26 @@ public class ArcView extends View {
 
         Log.d(TAG, "startAngle:" + getStartAngle());
         Log.d(TAG, "sweepAngle:" + getSweepAngle());
+    }
 
-        mCenterY = center_y;
-        mCenterX = center_x;
+    private void validateTextArc() {
+        setTextRadius((getOuterRadius() + getInnerRadius()) / 2);
+        float left = mCenterX - getTextRadius();
+        float right = mCenterX + getTextRadius();
+        float top = mCenterY - getTextRadius();
+        float bottom = mCenterY + getTextRadius();
+        mTextArc.set(left, top, right, bottom);
+    }
+
+    private void validateTextPath() {
+        mTextPath.reset();
+        if (getSweepAngle() >= 360) {
+            float textAngle = (float) (mTextWidth * 90 / Math.PI / getTextRadius());
+            mTextPath.addArc(mTextArc, getStartAngle() + 180 - textAngle, textAngle * 2);
+        } else {
+            mTextPath.addArc(mTextArc, (float) (getStartAngle() + getSweepAngle() / 2 -
+                    mTextWidth * 90 / Math.PI / getTextRadius()), getSweepAngle());
+        }
     }
 
     @Override
@@ -250,7 +260,7 @@ public class ArcView extends View {
         if (getSweepAngle() < 360) canvas.drawLines(mLines, mLinePaint);
 
         // draw text
-        canvas.drawTextOnPath(mArcText, mTextPath, 0, mTextHeight, mTextPaint);
+        canvas.drawTextOnPath(getText(), mTextPath, 0, mTextHeight, mTextPaint);
     }
 
     /**
@@ -467,7 +477,7 @@ public class ArcView extends View {
         return (float) (angle - 360 * Math.floor(angle / 360));
     }
 
-    private boolean isInside(float x, float y) {
+    public boolean isInside(float x, float y) {
         float radius = getRadius(x, y);
         if (radius >= getInnerRadius() && radius <= getOuterRadius()) {
             if (getSweepAngle() == 360) return true;
